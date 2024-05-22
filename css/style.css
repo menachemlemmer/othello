@@ -11,6 +11,10 @@ body {
   align-items: center;
 }
 
+h1 {
+  font-size: 100px;
+}
+
 .board {
   display: grid;
   border: 2px solid black;
