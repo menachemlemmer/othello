@@ -23,6 +23,7 @@ let player;
 
 const boardEl = document.querySelector(".board");
 const resetBtn = document.querySelector("#reset");
+const messageEl = document.querySelector("#message");
 
 for (let i = 0; i < 8; i++) {
   for (let j = 0; j < 8; j++) {
@@ -51,21 +52,45 @@ function init() {
 
 function render() {
   updateBoard(board);
+  updateMessage();
 }
 
 function updateBoard(board) {
   for (let square of squareEls) {
     let idx = square.id.split(",");
+    if (
+      square.firstChild &&
+      square.firstChild.classList.contains(board[idx[0]][idx[1]])
+    ) {
+      continue;
+    }
     if (square.firstChild && board[idx[0]][idx[1]] !== "") {
-      square.firstChild.style.backgroundColor = board[idx[0]][idx[1]];
+      square.firstChild.removeAttribute("Class");
+      square.firstChild.classList.add("token");
+      square.firstChild.classList.add(board[idx[0]][idx[1]]);
+      setTimeout(function () {
+        square.firstChild.classList.add("flip");
+      }, 100);
     } else if (board[idx[0]][idx[1]] !== "") {
       let token = document.createElement("div");
       token.classList.add("token");
-      token.style.backgroundColor = board[idx[0]][idx[1]];
+      token.classList.add(board[idx[0]][idx[1]]);
       square.appendChild(token);
     } else if (square.firstChild) {
       square.removeChild(square.firstChild);
     }
+  }
+}
+
+function updateMessage() {
+  messageEl.classList.remove("expand");
+
+  if (winner(board)) {
+    setInterval(() => messageEl.classList.add("expand"), 0);
+    messageEl.textContent = `${winner(board)} wins!`;
+  } else {
+    setInterval(() => messageEl.classList.add("expand"), 0);
+    messageEl.textContent = `${player}'s turn`;
   }
 }
 
@@ -121,7 +146,6 @@ function placePiece(board, move, player) {
       j += direction[1];
     }
   }
-  render();
 }
 
 function terminal(board, player) {
@@ -136,6 +160,28 @@ function terminal(board, player) {
   return isTerminal;
 }
 
+function winner(board) {
+  if (!terminal(board, b) || !terminal(board, w)) {
+    return;
+  }
+  const flatBoard = board.flat();
+  let tally = flatBoard.reduce(function (acc, vote) {
+    if (acc[vote]) {
+      acc[vote] = acc[vote] + 1;
+    } else {
+      acc[vote] = 1;
+    }
+    return acc;
+  }, {});
+  if (tally.white > tally.black) {
+    return w;
+  } else if (tally.black > tally.white) {
+    return b;
+  } else {
+    return "tie";
+  }
+}
+
 function swap(play) {
   if (play === b) {
     player = w;
@@ -143,11 +189,8 @@ function swap(play) {
     player = b;
   }
 }
-/*----------------------------- Event Listeners -----------------------------*/
 
-resetBtn.addEventListener("click", init);
-
-boardEl.addEventListener("click", (e) => {
+function handleClick(e) {
   let idx = e.target.id.split(",").map(Number);
   let i = idx[0];
   let j = idx[1];
@@ -159,18 +202,13 @@ boardEl.addEventListener("click", (e) => {
   if (terminal(board, player)) {
     swap(player);
   }
-  if (terminal(board, player)) {
-    init();
-  }
-});
+  render();
+}
 
-//   }
-//   placePiece(currrentMove, player);
-//   if (player === b) {
-//     player = w;
-//   } else {
-//     player = b;
-//   }
-// });
+/*----------------------------- Event Listeners -----------------------------*/
+
+resetBtn.addEventListener("click", init);
+
+boardEl.addEventListener("click", handleClick);
 
 init();
