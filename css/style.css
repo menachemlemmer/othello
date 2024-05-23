@@ -9,7 +9,7 @@ body {
   min-height: 100%;
   display: grid;
   grid-template-rows: 2fr, 1fr;
-  grid-template-columns: 1fr 2fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr;
   align-items: center;
   justify-items: center;
   color: #00a97f;
@@ -51,7 +51,10 @@ ul hr {
   width: 80%;
 }
 
-img {
+svg {
+  fill: #00a97f;
+  margin-left: 70px;
+  margin-top: 24px;
 }
 
 .board {
@@ -99,13 +102,24 @@ img {
 }
 
 .msg-container {
-  align-self: baseline;
-  justify-self: start;
+  height: 100%;
+  width: 100%;
   display: flex;
   flex-direction: column;
-  align-items: end;
+  align-items: start;
   gap: 30px;
 }
+
+.button-container {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  grid-column: span 2;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+/* Animations generated using animista */
 
 .expand {
   animation: expand 0.7s cubic-bezier(0.215, 0.61, 0.355, 1) both;
@@ -137,7 +151,7 @@ img {
   }
 }
 
-/* Button animation is from uiverse.io */
+/* Button and toggle switch are from uiverse.io */
 
 .button {
   --color: #00a97f;
@@ -197,6 +211,70 @@ img {
   filter: brightness(0.8);
 }
 
+.toggle-switch {
+  position: relative;
+  width: 100px;
+  height: 50px;
+  margin-right: 60px;
+  --light: #c3c3c3;
+  --dark: #00a97f;
+  --link: rgb(27, 129, 112);
+  --link-hover: rgb(24, 94, 82);
+}
+
+.switch-label {
+  position: absolute;
+  width: 100%;
+  height: 50px;
+  background-color: var(--dark);
+  border-radius: 25px;
+  cursor: pointer;
+  border: 3px solid var(--dark);
+}
+
+.checkbox {
+  position: absolute;
+  display: none;
+}
+
+.toggle-slider {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 25px;
+  -webkit-transition: 0.3s;
+  transition: 0.3s;
+}
+
+.checkbox:checked ~ .toggle-slider {
+  background-color: var(--light);
+}
+
+.toggle-slider::before {
+  content: "";
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  -webkit-box-shadow: inset 12px -4px 0px 0px var(--light);
+  box-shadow: inset 12px -4px 0px 0px var(--light);
+  background-color: var(--dark);
+  -webkit-transition: 0.3s;
+  transition: 0.3s;
+}
+
+.checkbox:checked ~ .toggle-slider::before {
+  -webkit-transform: translateX(50px);
+  -ms-transform: translateX(50px);
+  transform: translateX(50px);
+  background-color: var(--dark);
+  -webkit-box-shadow: none;
+  box-shadow: none;
+}
+
 #message {
-  align-self: center;
+  margin-left: 150px;
+  margin-top: 40px;
 }

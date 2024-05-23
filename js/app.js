@@ -18,12 +18,14 @@ const directions = [
 
 let board;
 let player;
+let playerMode = "multi";
 
 /*------------------------ Cached Element References ------------------------*/
 
 const boardEl = document.querySelector(".board");
 const resetBtn = document.querySelector("#reset");
 const messageEl = document.querySelector("#message");
+const playerModeBtn = document.querySelector("#player-mode");
 
 for (let i = 0; i < 8; i++) {
   for (let j = 0; j < 8; j++) {
@@ -84,13 +86,36 @@ function updateBoard(board) {
 
 function updateMessage() {
   messageEl.classList.remove("expand");
-
-  if (winner(board)) {
-    setInterval(() => messageEl.classList.add("expand"), 0);
-    messageEl.textContent = `${winner(board)} wins!`;
+  if (playerMode === "multi") {
+    if (winner(board)) {
+      setInterval(() => messageEl.classList.add("expand"), 0);
+      if (winner(board) === "tie") {
+        messageEl.textContent = `${winner(board)}!`;
+      } else {
+        messageEl.textContent = `${winner(board)} wins!`;
+      }
+    } else {
+      setInterval(() => messageEl.classList.add("expand"), 0);
+      messageEl.textContent = `${player}'s turn`;
+    }
   } else {
-    setInterval(() => messageEl.classList.add("expand"), 0);
-    messageEl.textContent = `${player}'s turn`;
+    if (winner(board)) {
+      setInterval(() => messageEl.classList.add("expand"), 0);
+      if (winner(board) === "tie") {
+        messageEl.textContent = `${winner(board)}!`;
+      } else if (winner(board) === w) {
+        messageEl.textContent = "You lose!";
+      } else {
+        messageEl.textContent = "You win!";
+      }
+    } else {
+      setInterval(() => messageEl.classList.add("expand"), 0);
+      if (player === w) {
+        messageEl.textContent = "Thinking...";
+      } else {
+        messageEl.textContent = "Your turn";
+      }
+    }
   }
 }
 
@@ -148,6 +173,70 @@ function placePiece(board, move, player) {
   }
 }
 
+function result(board, move, player) {
+  newBoard = JSON.parse(JSON.stringify(board));
+  let i = move[0];
+  let j = move[1];
+  placePiece(newBoard, [i, j], player);
+  return newBoard;
+}
+
+function checkValue(board, move, player) {
+  let value;
+
+  if (winner(result(board, move, player)) === player) {
+    value = 100;
+    return value;
+  }
+  let flatBoard = board.flat();
+  let newBoard = result(board, move, player);
+  let flatNewBoard = result(board, move, player).flat();
+  let boardTally = flatBoard.reduce(function (acc, num) {
+    if (acc[num]) {
+      acc[num] = acc[num] + 1;
+    } else {
+      acc[num] = 1;
+    }
+    return acc;
+  }, {});
+  let newBoardTally = flatNewBoard.reduce(function (acc, num) {
+    if (acc[num]) {
+      acc[num] = acc[num] + 1;
+    } else {
+      acc[num] = 1;
+    }
+    return acc;
+  }, {});
+
+  value = newBoardTally[player] - boardTally[player];
+  return value;
+}
+
+function findBestMove(board, player) {
+  const moves = {};
+  for (let i = 0; i < 8; i++) {
+    for (let j = 0; j < 8; j++) {
+      if (validMove(board, [i, j], player).length === 0) {
+        continue;
+      } else {
+        let move = [i, j];
+        moves[move] = checkValue(board, [i, j], player);
+      }
+    }
+  }
+  //from stack overflow
+  const getMax = (object) => {
+    return Object.keys(object).filter((x) => {
+      return object[x] == Math.max.apply(null, Object.values(object));
+    });
+  };
+  if (getMax(moves).length === 1) {
+    return getMax(moves)[0];
+  } else {
+    return getMax(moves)[Math.floor(Math.random() * getMax(moves).length)];
+  }
+}
+
 function terminal(board, player) {
   let isTerminal = true;
   for (let i = 0; i < 8; i++) {
@@ -165,21 +254,37 @@ function winner(board) {
     return;
   }
   const flatBoard = board.flat();
-  let tally = flatBoard.reduce(function (acc, vote) {
-    if (acc[vote]) {
-      acc[vote] = acc[vote] + 1;
+  let tally = flatBoard.reduce(function (acc, num) {
+    if (acc[num]) {
+      acc[num] = acc[num] + 1;
     } else {
-      acc[vote] = 1;
+      acc[num] = 1;
     }
     return acc;
   }, {});
-  if (tally.white > tally.black) {
+  if (tally.white > tally.black || !b in tally) {
     return w;
-  } else if (tally.black > tally.white) {
+  } else if (tally.black > tally.white || !w in tally) {
     return b;
   } else {
     return "tie";
   }
+}
+
+function computerTurn() {
+  let move = findBestMove(board, player);
+  let idx = move.split(",").map(Number);
+  placePiece(board, idx, player);
+  swap(player);
+  if (terminal(board, player)) {
+    swap(player);
+    if (terminal(board, player)) {
+      render();
+      return;
+    }
+    computerTurn;
+  }
+  render();
 }
 
 function swap(play) {
@@ -191,6 +296,9 @@ function swap(play) {
 }
 
 function handleClick(e) {
+  if (playerMode === "single" && player === w) {
+    return;
+  }
   let idx = e.target.id.split(",").map(Number);
   let i = idx[0];
   let j = idx[1];
@@ -202,7 +310,15 @@ function handleClick(e) {
   if (terminal(board, player)) {
     swap(player);
   }
+  if (terminal(board, player)) {
+    render();
+    return;
+  }
   render();
+  if (playerMode === "single" && player === w) {
+    setTimeout(computerTurn, 1000);
+    render();
+  }
 }
 
 /*----------------------------- Event Listeners -----------------------------*/
@@ -210,5 +326,16 @@ function handleClick(e) {
 resetBtn.addEventListener("click", init);
 
 boardEl.addEventListener("click", handleClick);
+
+playerModeBtn.addEventListener("click", () => {
+  if (playerMode === "multi") {
+    playerMode = "single";
+    playerModeBtn.textContent = "single-player";
+  } else {
+    playerMode = "multi";
+    playerModeBtn.textContent = "multi-player";
+  }
+  init();
+});
 
 init();
