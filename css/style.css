@@ -53,7 +53,7 @@ h3 {
 ul {
   width: 70%;
   color: var(--color-3);
-  margin-left: 40px;
+  margin: 40px 20px;
   transition: 0.3s;
 }
 
@@ -98,7 +98,7 @@ footer {
 }
 
 .board {
-  margin: 40px 20px;
+  margin: 40px;
   display: grid;
   grid-template-rows: repeat(8, 1fr);
   grid-template-columns: repeat(8, 1fr);
