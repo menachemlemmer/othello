@@ -26,6 +26,7 @@ const boardEl = document.querySelector(".board");
 const resetBtn = document.querySelector("#reset");
 const messageEl = document.querySelector("#message");
 const playerModeBtn = document.querySelector("#player-mode");
+const themeBtn = document.querySelector(".checkbox");
 
 for (let i = 0; i < 8; i++) {
   for (let j = 0; j < 8; j++) {
@@ -48,7 +49,7 @@ function init() {
   board[4][4] = "white";
   board[4][3] = "black";
   board[3][4] = "black";
-  player = "black";
+  player = b;
   render();
 }
 
@@ -230,6 +231,11 @@ function findBestMove(board, player) {
       return object[x] == Math.max.apply(null, Object.values(object));
     });
   };
+  for (let key in moves) {
+    if (key === "0,0" || key === "0,7" || key === "7,0" || key === "7,7") {
+      moves[key] += 10;
+    }
+  }
   if (getMax(moves).length === 1) {
     return getMax(moves)[0];
   } else {
@@ -262,9 +268,9 @@ function winner(board) {
     }
     return acc;
   }, {});
-  if (tally.white > tally.black || !b in tally) {
+  if (tally.white > tally.black || !("black" in tally)) {
     return w;
-  } else if (tally.black > tally.white || !w in tally) {
+  } else if (tally.black > tally.white || !("white" in tally)) {
     return b;
   } else {
     return "tie";
@@ -316,7 +322,7 @@ function handleClick(e) {
   }
   render();
   if (playerMode === "single" && player === w) {
-    setTimeout(computerTurn, 1000);
+    setTimeout(computerTurn, 1400);
     render();
   }
 }
@@ -324,6 +330,14 @@ function handleClick(e) {
 /*----------------------------- Event Listeners -----------------------------*/
 
 resetBtn.addEventListener("click", init);
+
+themeBtn.addEventListener("click", (e) => {
+  if (e.target.checked) {
+    document.documentElement.className = "light";
+  } else {
+    document.documentElement.className = "dark";
+  }
+});
 
 boardEl.addEventListener("click", handleClick);
 

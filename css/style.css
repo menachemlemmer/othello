@@ -1,22 +1,37 @@
 * {
   box-sizing: border-box;
+  transition: 0.3s;
+}
+
+:root.dark {
+  --color-1: #00a97f;
+  --color-2: #3c3a49;
+  --color-3: #c3c3c3;
+  --color-4: #262626;
+}
+
+:root.light {
+  --color-1: #04724d;
+  --color-3: #262626;
+  --color-4: #3c3a49;
+  --color-2: #c3c3c3;
 }
 
 body {
   margin: 0;
   font-family: system-ui, sans-serif;
-  background-color: #3c3a49;
+  background-color: var(--color-2);
   min-height: 100%;
   display: grid;
   grid-template-rows: 2fr, 1fr;
   grid-template-columns: 1fr 1fr 1fr;
   align-items: center;
   justify-items: center;
-  color: #00a97f;
+  color: var(--color-1);
 }
 
 hr {
-  border-color: #00a97f;
+  border-color: var(--color-1);
   width: 100%;
   grid-column: 1/5;
 }
@@ -30,11 +45,13 @@ h1 {
 
 h3 {
   font-size: 2rem;
+  color: var(--color-3);
+  align-self: center;
 }
 
 ul {
   width: 70%;
-  color: #c3c3c3;
+  color: var(--color-3);
   margin-left: 40px;
 }
 
@@ -44,7 +61,7 @@ li {
 
 a {
   text-decoration: none;
-  color: #00a97f;
+  color: var(--color-1);
 }
 
 ul hr {
@@ -52,9 +69,10 @@ ul hr {
 }
 
 svg {
-  fill: #00a97f;
-  margin-left: 70px;
+  fill: var(--color-1);
+  margin-left: 30px;
   margin-top: 24px;
+  justify-self: start;
 }
 
 .board {
@@ -64,8 +82,8 @@ svg {
   grid-template-columns: repeat(8, 1fr);
   width: 45vw;
   height: 45vw;
-  background: #00a97f;
-  border: 2px solid #3c3a49;
+  background: var(--color-1);
+  border: 2px solid var(--color-2);
   min-width: 500px;
   min-height: 500px;
   max-width: 800px;
@@ -77,13 +95,13 @@ svg {
   display: flex;
   justify-content: center;
   align-items: center;
-  background: #00a97f;
-  border: 2px solid #3c3a49;
+  background: var(--color-1);
+  border: 2px solid var(--color-2);
   transition: 0.3s;
 }
 
 .square:hover {
-  border: 4px solid #00a97f;
+  border: 4px solid var(--color-1);
 }
 
 .token {
@@ -98,16 +116,18 @@ svg {
 }
 
 .black {
-  background-color: #262626;
+  background-color: var(--color-4);
 }
 
 .msg-container {
   height: 100%;
-  width: 100%;
+  width: 80%;
   display: flex;
   flex-direction: column;
   align-items: start;
   gap: 30px;
+  max-width: 350px;
+  justify-self: start;
 }
 
 .button-container {
@@ -154,7 +174,6 @@ svg {
 /* Button and toggle switch are from uiverse.io */
 
 .button {
-  --color: #00a97f;
   padding: 0.8em 1.7em;
   background-color: transparent;
   border-radius: 0.3em;
@@ -167,7 +186,7 @@ svg {
   border: 1px solid;
   font-family: inherit;
   text-transform: uppercase;
-  color: var(--color);
+  color: var(--color-1);
   z-index: 1;
   margin-right: 60px;
   justify-self: end;
@@ -183,7 +202,7 @@ svg {
   position: absolute;
   border-radius: 50%;
   z-index: -1;
-  background-color: var(--color);
+  background-color: var(--color-1);
   transition: 1s ease;
 }
 
@@ -204,7 +223,7 @@ svg {
 }
 
 .button:hover {
-  color: #3c3a49;
+  color: var(--color-2);
 }
 
 .button:active {
@@ -216,8 +235,8 @@ svg {
   width: 100px;
   height: 50px;
   margin-right: 60px;
-  --light: #c3c3c3;
-  --dark: #00a97f;
+  --light: var(--color-3);
+  --dark: var(--color-1);
   --link: rgb(27, 129, 112);
   --link-hover: rgb(24, 94, 82);
 }
@@ -247,7 +266,7 @@ svg {
 }
 
 .checkbox:checked ~ .toggle-slider {
-  background-color: var(--light);
+  background-color: var(--dark);
 }
 
 .toggle-slider::before {
@@ -259,7 +278,7 @@ svg {
   height: 25px;
   border-radius: 50%;
   -webkit-box-shadow: inset 12px -4px 0px 0px var(--light);
-  box-shadow: inset 12px -4px 0px 0px var(--light);
+  box-shadow: inset 12px -4px 0px 0px var(--color-2);
   background-color: var(--dark);
   -webkit-transition: 0.3s;
   transition: 0.3s;
@@ -269,12 +288,13 @@ svg {
   -webkit-transform: translateX(50px);
   -ms-transform: translateX(50px);
   transform: translateX(50px);
-  background-color: var(--dark);
+  background-color: var(--color-2);
   -webkit-box-shadow: none;
   box-shadow: none;
 }
 
 #message {
-  margin-left: 150px;
+  margin-left: 50px;
   margin-top: 40px;
+  color: var(--color-1);
 }
