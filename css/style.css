@@ -1,6 +1,5 @@
 * {
   box-sizing: border-box;
-  transition: 0.3s;
 }
 
 :root.dark {
@@ -29,6 +28,7 @@ body {
   align-items: center;
   justify-items: center;
   color: var(--color-1);
+  transition: 0.3s;
 }
 
 hr {
@@ -54,6 +54,7 @@ ul {
   width: 70%;
   color: var(--color-3);
   margin-left: 40px;
+  transition: 0.3s;
 }
 
 li {
@@ -97,12 +98,12 @@ footer {
 }
 
 .board {
-  margin-top: 40px;
+  margin: 40px 20px;
   display: grid;
   grid-template-rows: repeat(8, 1fr);
   grid-template-columns: repeat(8, 1fr);
-  width: 45vw;
-  height: 45vw;
+  width: 40vw;
+  height: 40vw;
   background: var(--color-1);
   border: 2px solid var(--color-2);
   min-width: 500px;
@@ -110,6 +111,7 @@ footer {
   max-width: 800px;
   max-height: 800px;
   cursor: pointer;
+  transition: 0.3s;
 }
 
 .square {
