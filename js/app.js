@@ -94,6 +94,8 @@ function updateMessage() {
         messageEl.textContent = `${winner(board)}!`;
       } else {
         messageEl.textContent = `${winner(board)} wins!`;
+        startConfetti();
+        setInterval(stopConfetti, 3000);
       }
     } else {
       setInterval(() => messageEl.classList.add("expand"), 0);
@@ -108,6 +110,8 @@ function updateMessage() {
         messageEl.textContent = "You lose!";
       } else {
         messageEl.textContent = "You win!";
+        startConfetti();
+        setInterval(stopConfetti, 3000);
       }
     } else {
       setInterval(() => messageEl.classList.add("expand"), 0);
