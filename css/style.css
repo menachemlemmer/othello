@@ -10,10 +10,10 @@
 }
 
 :root.light {
-  --color-1: #04724d;
-  --color-3: #262626;
-  --color-4: #3c3a49;
+  --color-1: rgb(4, 114, 77);
   --color-2: #c3c3c3;
+  --color-3: #1f2232;
+  --color-4: #3c3a49;
 }
 
 body {
@@ -289,7 +289,7 @@ footer {
 }
 
 .checkbox:checked ~ .toggle-slider {
-  background-color: var(--dark);
+  background-color: var(--color-2);
 }
 
 .toggle-slider::before {
@@ -311,7 +311,7 @@ footer {
   -webkit-transform: translateX(50px);
   -ms-transform: translateX(50px);
   transform: translateX(50px);
-  background-color: var(--color-2);
+  background-color: var(--color-1);
   -webkit-box-shadow: none;
   box-shadow: none;
 }
