@@ -1,7 +1,9 @@
 /*-------------------------------- Constants --------------------------------*/
 
-const b = "black";
-const w = "white";
+const BLACK = "black";
+const WHITE = "white";
+
+const BOARD_SIZE = 8;
 
 const directions = [
   [1, 0],
@@ -28,11 +30,11 @@ const messageEl = document.querySelector("#message");
 const playerModeBtn = document.querySelector("#player-mode");
 const themeBtn = document.querySelector(".checkbox");
 
-for (let i = 0; i < 8; i++) {
-  for (let j = 0; j < 8; j++) {
+for (let y = 0; y < BOARD_SIZE; y++) {
+  for (let x = 0; x < BOARD_SIZE; x++) {
     let square = document.createElement("div");
     square.classList.add("square");
-    square.id = `${i},${j}`;
+    square.id = `${y},${x}`;
     boardEl.appendChild(square);
   }
 }
@@ -49,7 +51,7 @@ function init() {
   board[4][4] = "white";
   board[4][3] = "black";
   board[3][4] = "black";
-  player = b;
+  player = BLACK;
   render();
 }
 
@@ -106,7 +108,7 @@ function updateMessage() {
       setInterval(() => messageEl.classList.add("expand"), 0);
       if (winner(board) === "tie") {
         messageEl.textContent = `${winner(board)}!`;
-      } else if (winner(board) === w) {
+      } else if (winner(board) === WHITE) {
         messageEl.textContent = "You lose!";
       } else {
         messageEl.textContent = "You win!";
@@ -115,7 +117,7 @@ function updateMessage() {
       }
     } else {
       setInterval(() => messageEl.classList.add("expand"), 0);
-      if (player === w) {
+      if (player === WHITE) {
         messageEl.textContent = "Thinking...";
       } else {
         messageEl.textContent = "Your turn";
@@ -126,34 +128,29 @@ function updateMessage() {
 
 function validMove(board, move, player) {
   const validDirections = [];
-  let otherPlayer;
-  if (player === b) {
-    otherPlayer = w;
-  } else {
-    otherPlayer = b;
-  }
+  const otherPlayer = player === BLACK ? WHITE : BLACK;
 
   for (let direction of directions) {
-    let i = move[0];
-    let j = move[1];
-    if (board[i][j] !== "") {
+    let y = move[0];
+    let x = move[1];
+    if (board[y][x] !== "") {
       return validDirections;
     }
-    i += direction[0];
-    j += direction[1];
-    if (i < 0 || i > 7 || j < 0 || j > 7) {
+    y += direction[0];
+    x += direction[1];
+    if (y < 0 || y > 7 || x < 0 || x > 7) {
       continue;
     }
-    if (board[i][j] === otherPlayer) {
-      while (i >= 0 && i <= 7 && j >= 0 && j <= 7) {
-        if (board[i][j] === "") {
+    if (board[y][x] === otherPlayer) {
+      while (y >= 0 && y <= 7 && x >= 0 && x <= 7) {
+        if (board[y][x] === "") {
           break;
-        } else if (board[i][j] === player) {
+        } else if (board[y][x] === player) {
           validDirections.push(direction);
           break;
         }
-        i += direction[0];
-        j += direction[1];
+        y += direction[0];
+        x += direction[1];
       }
     }
   }
@@ -162,18 +159,18 @@ function validMove(board, move, player) {
 
 function placePiece(board, move, player) {
   const validDirections = validMove(board, move, player);
-  let i = move[0];
-  let j = move[1];
-  board[i][j] = player;
+  let y = move[0];
+  let x = move[1];
+  board[y][x] = player;
   for (let direction of validDirections) {
-    i = move[0];
-    j = move[1];
-    i += direction[0];
-    j += direction[1];
-    while (board[i][j] !== player) {
-      board[i][j] = player;
-      i += direction[0];
-      j += direction[1];
+    y = move[0];
+    x = move[1];
+    y += direction[0];
+    x += direction[1];
+    while (board[y][x] !== player) {
+      board[y][x] = player;
+      y += direction[0];
+      x += direction[1];
     }
   }
 }
@@ -260,7 +257,7 @@ function terminal(board, player) {
 }
 
 function winner(board) {
-  if (!terminal(board, b) || !terminal(board, w)) {
+  if (!terminal(board, BLACK) || !terminal(board, WHITE)) {
     return;
   }
   const flatBoard = board.flat();
@@ -273,9 +270,9 @@ function winner(board) {
     return acc;
   }, {});
   if (tally.white > tally.black || !("black" in tally)) {
-    return w;
+    return WHITE;
   } else if (tally.black > tally.white || !("white" in tally)) {
-    return b;
+    return BLACK;
   } else {
     return "tie";
   }
@@ -285,9 +282,9 @@ function computerTurn() {
   let move = findBestMove(board, player);
   let idx = move.split(",").map(Number);
   placePiece(board, idx, player);
-  swap(player);
+  swap();
   if (terminal(board, player)) {
-    swap(player);
+    swap();
     if (terminal(board, player)) {
       render();
       return;
@@ -297,16 +294,12 @@ function computerTurn() {
   render();
 }
 
-function swap(play) {
-  if (play === b) {
-    player = w;
-  } else {
-    player = b;
-  }
+function swap() {
+  player = player === BLACK ? WHITE : BLACK;
 }
 
 function handleClick(e) {
-  if (playerMode === "single" && player === w) {
+  if (playerMode === "single" && player === WHITE) {
     return;
   }
   let idx = e.target.id.split(",").map(Number);
@@ -316,7 +309,7 @@ function handleClick(e) {
     return;
   }
   placePiece(board, idx, player);
-  swap(player);
+  swap();
   if (terminal(board, player)) {
     swap(player);
   }
@@ -325,7 +318,7 @@ function handleClick(e) {
     return;
   }
   render();
-  if (playerMode === "single" && player === w) {
+  if (playerMode === "single" && player === WHITE) {
     setTimeout(computerTurn, 1400);
     render();
   }
@@ -336,11 +329,7 @@ function handleClick(e) {
 resetBtn.addEventListener("click", init);
 
 themeBtn.addEventListener("click", (e) => {
-  if (e.target.checked) {
-    document.documentElement.className = "light";
-  } else {
-    document.documentElement.className = "dark";
-  }
+  document.documentElement.className = e.target.checked ? "light" : "dark";
 });
 
 boardEl.addEventListener("click", handleClick);
