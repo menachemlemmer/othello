@@ -5,7 +5,7 @@ const WHITE = "white";
 
 const BOARD_SIZE = 8;
 
-const directions = [
+const DIRECTIONS = [
   [1, 0],
   [-1, 0],
   [0, 1],
@@ -44,13 +44,13 @@ const squareEls = document.querySelectorAll(".square");
 /*-------------------------------- Functions --------------------------------*/
 
 function init() {
-  board = Array(8)
+  board = Array(BOARD_SIZE)
     .fill()
-    .map(() => Array(8).fill(""));
-  board[3][3] = "white";
-  board[4][4] = "white";
-  board[4][3] = "black";
-  board[3][4] = "black";
+    .map(() => Array(BOARD_SIZE).fill(""));
+  board[3][3] = WHITE;
+  board[4][4] = WHITE;
+  board[4][3] = BLACK;
+  board[3][4] = BLACK;
   player = BLACK;
   render();
 }
@@ -62,24 +62,22 @@ function render() {
 
 function updateBoard(board) {
   for (let square of squareEls) {
-    let idx = square.id.split(",");
+    const idx = square.id.split(",");
     if (
       square.firstChild &&
       square.firstChild.classList.contains(board[idx[0]][idx[1]])
     ) {
       continue;
     }
-    if (square.firstChild && board[idx[0]][idx[1]] !== "") {
+    if (square.firstChild && board[idx[0]][idx[1]]) {
       square.firstChild.removeAttribute("Class");
-      square.firstChild.classList.add("token");
-      square.firstChild.classList.add(board[idx[0]][idx[1]]);
-      setTimeout(function () {
+      square.firstChild.classList.add("token", board[idx[0]][idx[1]]);
+      setTimeout(() => {
         square.firstChild.classList.add("flip");
       }, 100);
-    } else if (board[idx[0]][idx[1]] !== "") {
+    } else if (board[idx[0]][idx[1]]) {
       let token = document.createElement("div");
-      token.classList.add("token");
-      token.classList.add(board[idx[0]][idx[1]]);
+      token.classList.add("token", board[idx[0]][idx[1]]);
       square.appendChild(token);
     } else if (square.firstChild) {
       square.removeChild(square.firstChild);
@@ -130,7 +128,7 @@ function validMove(board, move, player) {
   const validDirections = [];
   const otherPlayer = player === BLACK ? WHITE : BLACK;
 
-  for (let direction of directions) {
+  for (let direction of DIRECTIONS) {
     let y = move[0];
     let x = move[1];
     if (board[y][x] !== "") {
@@ -176,11 +174,18 @@ function placePiece(board, move, player) {
 }
 
 function result(board, move, player) {
-  newBoard = JSON.parse(JSON.stringify(board));
-  let i = move[0];
-  let j = move[1];
-  placePiece(newBoard, [i, j], player);
+  let newBoard = JSON.parse(JSON.stringify(board));
+  const y = move[0];
+  const x = move[1];
+  placePiece(newBoard, [y, x], player);
   return newBoard;
+}
+
+function tally(board) {
+  return board.flat().reduce(function (acc, num) {
+    acc[num] = (acc[num] || 0) + 1;
+    return acc;
+  }, {});
 }
 
 function checkValue(board, move, player) {
@@ -190,25 +195,9 @@ function checkValue(board, move, player) {
     value = 100;
     return value;
   }
-  let flatBoard = board.flat();
-  let newBoard = result(board, move, player);
-  let flatNewBoard = result(board, move, player).flat();
-  let boardTally = flatBoard.reduce(function (acc, num) {
-    if (acc[num]) {
-      acc[num] = acc[num] + 1;
-    } else {
-      acc[num] = 1;
-    }
-    return acc;
-  }, {});
-  let newBoardTally = flatNewBoard.reduce(function (acc, num) {
-    if (acc[num]) {
-      acc[num] = acc[num] + 1;
-    } else {
-      acc[num] = 1;
-    }
-    return acc;
-  }, {});
+  const newBoard = result(board, move, player);
+  const boardTally = tally(board);
+  const newBoardTally = tally(newBoard);
 
   value = newBoardTally[player] - boardTally[player];
   return value;
@@ -216,31 +205,33 @@ function checkValue(board, move, player) {
 
 function findBestMove(board, player) {
   const moves = {};
-  for (let i = 0; i < 8; i++) {
-    for (let j = 0; j < 8; j++) {
-      if (validMove(board, [i, j], player).length === 0) {
+  for (let y = 0; y < BOARD_SIZE; y++) {
+    for (let x = 0; x < BOARD_SIZE; x++) {
+      if (validMove(board, [y, x], player).length === 0) {
         continue;
       } else {
-        let move = [i, j];
-        moves[move] = checkValue(board, [i, j], player);
+        let move = [y, x];
+        moves[move] = checkValue(board, [y, x], player);
       }
     }
   }
-  //from stack overflow
-  const getMax = (object) => {
-    return Object.keys(object).filter((x) => {
-      return object[x] == Math.max.apply(null, Object.values(object));
-    });
+
+  const getMax = (obj) => {
+    const max = Math.max(...Object.values(obj));
+    return Object.keys(obj).filter((key) => obj[key] === max);
   };
+
   for (let key in moves) {
-    if (key === "0,0" || key === "0,7" || key === "7,0" || key === "7,7") {
+    const corners = ["0,0", "0,7", "7,0", "7,7"];
+    if (corners.includes(key)) {
       moves[key] += 10;
     }
   }
-  if (getMax(moves).length === 1) {
-    return getMax(moves)[0];
+  const max = getMax(moves);
+  if (max.length === 1) {
+    return max[0];
   } else {
-    return getMax(moves)[Math.floor(Math.random() * getMax(moves).length)];
+    return max[Math.floor(Math.random() * max.length)];
   }
 }
 
@@ -260,18 +251,10 @@ function winner(board) {
   if (!terminal(board, BLACK) || !terminal(board, WHITE)) {
     return;
   }
-  const flatBoard = board.flat();
-  let tally = flatBoard.reduce(function (acc, num) {
-    if (acc[num]) {
-      acc[num] = acc[num] + 1;
-    } else {
-      acc[num] = 1;
-    }
-    return acc;
-  }, {});
-  if (tally.white > tally.black || !("black" in tally)) {
+  let tally = tally(board);
+  if (tally.white > tally.black || !(BLACK in tally)) {
     return WHITE;
-  } else if (tally.black > tally.white || !("white" in tally)) {
+  } else if (tally.black > tally.white || !(WHITE in tally)) {
     return BLACK;
   } else {
     return "tie";
@@ -289,7 +272,6 @@ function computerTurn() {
       render();
       return;
     }
-    computerTurn;
   }
   render();
 }
